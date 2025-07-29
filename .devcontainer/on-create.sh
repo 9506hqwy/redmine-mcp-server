@@ -44,3 +44,12 @@ YQ_VERSION=4.45.4
 curl -fsSL -o - "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64.tar.gz" | \
     tar -zxf - -O "./yq_linux_amd64" > ~/.local/bin/yq
 chmod +x ~/.local/bin/yq
+
+# Install mcpcurl
+mkdir -p ~/.local/bin
+pushd /tmp
+    git clone --depth 1 https://github.com/github/github-mcp-server.git
+    cd github-mcp-server
+
+    go build -o ~/.local/bin/mcpcurl cmd/mcpcurl/main.go
+popd
