@@ -10,7 +10,7 @@ tool (
 
 require (
 	github.com/9506hqwy/redmine-client-go v0.0.0-20250725102402-01c262393529
-	github.com/mark3labs/mcp-go v0.36.0
+	github.com/mark3labs/mcp-go v0.37.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 )
