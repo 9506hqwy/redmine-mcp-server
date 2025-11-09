@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Install dependencies
 sudo apt-get update -y
-sudo apt-get install -y graphviz shellcheck zstd
+sudo apt-get install -y graphviz npm shellcheck zstd
 
 # Configuration PATH
 mkdir -p ~/.local/bin

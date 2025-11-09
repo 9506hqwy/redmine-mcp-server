@@ -178,7 +178,49 @@ Add `redmine-mcp-server` binary to `PATH` environment variable and configure VS 
 
 ## Testing
 
-TODO
+Check that this MCP server does correctly using [mcpcurl](https://github.com/github/github-mcp-server/tree/main/cmd/mcpcurl).
+
+List tools in this MCP server.
+
+```sh
+mcpcurl tools --pretty=false --stdio-server-cmd ./bin/redmine-mcp-server
+```
+
+Show tool's help.
+
+```sh
+mcpcurl tools --pretty=false --stdio-server-cmd ./bin/redmine-mcp-server <tool> --help
+```
+
+e.g. get my account.
+
+```sh
+mcpcurl tools \
+    --pretty=false \
+    --stdio-server-cmd "./bin/redmine-mcp-server --url=<URL> --apikey=<TOKEN>" \
+    my_account
+```
+
+e.g. get wiki list.
+
+```sh
+mcpcurl tools \
+    --pretty=false \
+    --stdio-server-cmd "./bin/redmine-mcp-server --url=<URL> --apikey=<TOKEN>" \
+    wiki_index --project_id 1
+```
+
+Check schema.
+
+```sh
+mcpcurl schema --pretty=false --stdio-server-cmd ./bin/redmine-mcp-server
+```
+
+Check that this MCP server does correctly using [@modelcontextprotocol/inspector](https://github.com/modelcontextprotocol/inspector).
+
+```sh
+npx @modelcontextprotocol/inspector ./bin/redmine-mcp-server --url=<URL> --apikey=<TOKEN>
+```
 
 ## Notes
 
