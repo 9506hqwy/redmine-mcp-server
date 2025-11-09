@@ -7,9 +7,9 @@ import (
 )
 
 func parsePagination(request *mcp.CallToolRequest) *struct {
-	Limit  *int `json:"limit,omitempty"`
-	Nometa *int `json:"nometa,omitempty"`
-	Offset *int `json:"offset,omitempty"`
+	Limit  *int `json:"limit,omitempty" jsonschema:"description=The number of items to be present in the response. If not specified\\, it defaults to 25.,default=25,maximum=100"`
+	Nometa *int `json:"nometa,omitempty" jsonschema:"description=If set to 1\\, the response will not include pagination information.,enum=1"`
+	Offset *int `json:"offset,omitempty" jsonschema:"description=The offset of the first object to retrieve If not specified\\, it defaults to 0.,default=0"`
 } {
 	var pLimit *int = nil
 	var pNometa *int = nil
@@ -31,9 +31,9 @@ func parsePagination(request *mcp.CallToolRequest) *struct {
 	}
 
 	return &struct {
-		Limit  *int `json:"limit,omitempty"`
-		Nometa *int `json:"nometa,omitempty"`
-		Offset *int `json:"offset,omitempty"`
+		Limit  *int `json:"limit,omitempty" jsonschema:"description=The number of items to be present in the response. If not specified\\, it defaults to 25.,default=25,maximum=100"`
+		Nometa *int `json:"nometa,omitempty" jsonschema:"description=If set to 1\\, the response will not include pagination information.,enum=1"`
+		Offset *int `json:"offset,omitempty" jsonschema:"description=The offset of the first object to retrieve If not specified\\, it defaults to 0.,default=0"`
 	}{
 		Limit:  pLimit,
 		Nometa: pNometa,
@@ -42,52 +42,52 @@ func parsePagination(request *mcp.CallToolRequest) *struct {
 }
 
 func parseSearchIndexProjectQuery(request *mcp.CallToolRequest) *struct {
-	AllWords    *bool   `json:"all_words,omitempty"`
-	Attachments *string `json:"attachments,omitempty"`
-	Changesets  *bool   `json:"changesets,omitempty"`
-	Documents   *bool   `json:"documents,omitempty"`
-	Issues      *bool   `json:"issues,omitempty"`
-	Messages    *bool   `json:"messages,omitempty"`
-	News        *bool   `json:"news,omitempty"`
-	OpenIssues  *bool   `json:"open_issues,omitempty"`
-	Projects    *bool   `json:"projects,omitempty"`
-	Scope       *string `json:"scope,omitempty"`
-	TitlesOnly  *bool   `json:"titles_only,omitempty"`
-	WikiPages   *bool   `json:"wiki_pages,omitempty"`
+	AllWords    *bool   `json:"all_words,omitempty" jsonschema:"description=matched all query strings or not."`
+	Attachments *string `json:"attachments,omitempty" jsonschema:"description=Filterd by description and attachment. - \"0\": Seach only in description - \"1\": Search by description and attachment - \"only\": Search only in attachment"`
+	Changesets  *bool   `json:"changesets,omitempty" jsonschema:"description=Include changesets or not."`
+	Documents   *bool   `json:"documents,omitempty" jsonschema:"description=Include documents or not."`
+	Issues      *bool   `json:"issues,omitempty" jsonschema:"description=Include issues or not."`
+	Messages    *bool   `json:"messages,omitempty" jsonschema:"description=Include messages or not."`
+	News        *bool   `json:"news,omitempty" jsonschema:"description=Include news or not."`
+	OpenIssues  *bool   `json:"open_issues,omitempty" jsonschema:"description=Filterd by open issues."`
+	Projects    *bool   `json:"projects,omitempty" jsonschema:"description=Include projects or not."`
+	Scope       *string `json:"scope,omitempty" jsonschema:"description=Search scope condition. Possible values are: - \"all\": Search all projects - \"my_project\": Search assigned projects - \"bookmarks\": Search bookmarked projects - \"subprojects\": Include subproject when project specified,enum=all,enum=my_project,enum=bookmarks,enum=subprojects"`
+	TitlesOnly  *bool   `json:"titles_only,omitempty" jsonschema:"description=matched only title or not."`
+	WikiPages   *bool   `json:"wiki_pages,omitempty" jsonschema:"description=Include documents or not."`
 } {
 	return parseSearchIndexCommonQuery(request)
 }
 
 func parseSearchIndexQuery(request *mcp.CallToolRequest) *struct {
-	AllWords    *bool   `json:"all_words,omitempty"`
-	Attachments *string `json:"attachments,omitempty"`
-	Changesets  *bool   `json:"changesets,omitempty"`
-	Documents   *bool   `json:"documents,omitempty"`
-	Issues      *bool   `json:"issues,omitempty"`
-	Messages    *bool   `json:"messages,omitempty"`
-	News        *bool   `json:"news,omitempty"`
-	OpenIssues  *bool   `json:"open_issues,omitempty"`
-	Projects    *bool   `json:"projects,omitempty"`
-	Scope       *string `json:"scope,omitempty"`
-	TitlesOnly  *bool   `json:"titles_only,omitempty"`
-	WikiPages   *bool   `json:"wiki_pages,omitempty"`
+	AllWords    *bool   `json:"all_words,omitempty" jsonschema:"description=matched all query strings or not."`
+	Attachments *string `json:"attachments,omitempty" jsonschema:"description=Filterd by description and attachment. - \"0\": Seach only in description - \"1\": Search by description and attachment - \"only\": Search only in attachment"`
+	Changesets  *bool   `json:"changesets,omitempty" jsonschema:"description=Include changesets or not."`
+	Documents   *bool   `json:"documents,omitempty" jsonschema:"description=Include documents or not."`
+	Issues      *bool   `json:"issues,omitempty" jsonschema:"description=Include issues or not."`
+	Messages    *bool   `json:"messages,omitempty" jsonschema:"description=Include messages or not."`
+	News        *bool   `json:"news,omitempty" jsonschema:"description=Include news or not."`
+	OpenIssues  *bool   `json:"open_issues,omitempty" jsonschema:"description=Filterd by open issues."`
+	Projects    *bool   `json:"projects,omitempty" jsonschema:"description=Include projects or not."`
+	Scope       *string `json:"scope,omitempty" jsonschema:"description=Search scope condition. Possible values are: - \"all\": Search all projects - \"my_project\": Search assigned projects - \"bookmarks\": Search bookmarked projects - \"subprojects\": Include subproject when project specified,enum=all,enum=my_project,enum=bookmarks,enum=subprojects"`
+	TitlesOnly  *bool   `json:"titles_only,omitempty" jsonschema:"description=matched only title or not."`
+	WikiPages   *bool   `json:"wiki_pages,omitempty" jsonschema:"description=Include documents or not."`
 } {
 	return parseSearchIndexCommonQuery(request)
 }
 
 func parseSearchIndexCommonQuery(request *mcp.CallToolRequest) *struct {
-	AllWords    *bool   `json:"all_words,omitempty"`
-	Attachments *string `json:"attachments,omitempty"`
-	Changesets  *bool   `json:"changesets,omitempty"`
-	Documents   *bool   `json:"documents,omitempty"`
-	Issues      *bool   `json:"issues,omitempty"`
-	Messages    *bool   `json:"messages,omitempty"`
-	News        *bool   `json:"news,omitempty"`
-	OpenIssues  *bool   `json:"open_issues,omitempty"`
-	Projects    *bool   `json:"projects,omitempty"`
-	Scope       *string `json:"scope,omitempty"`
-	TitlesOnly  *bool   `json:"titles_only,omitempty"`
-	WikiPages   *bool   `json:"wiki_pages,omitempty"`
+	AllWords    *bool   `json:"all_words,omitempty" jsonschema:"description=matched all query strings or not."`
+	Attachments *string `json:"attachments,omitempty" jsonschema:"description=Filterd by description and attachment. - \"0\": Seach only in description - \"1\": Search by description and attachment - \"only\": Search only in attachment"`
+	Changesets  *bool   `json:"changesets,omitempty" jsonschema:"description=Include changesets or not."`
+	Documents   *bool   `json:"documents,omitempty" jsonschema:"description=Include documents or not."`
+	Issues      *bool   `json:"issues,omitempty" jsonschema:"description=Include issues or not."`
+	Messages    *bool   `json:"messages,omitempty" jsonschema:"description=Include messages or not."`
+	News        *bool   `json:"news,omitempty" jsonschema:"description=Include news or not."`
+	OpenIssues  *bool   `json:"open_issues,omitempty" jsonschema:"description=Filterd by open issues."`
+	Projects    *bool   `json:"projects,omitempty" jsonschema:"description=Include projects or not."`
+	Scope       *string `json:"scope,omitempty" jsonschema:"description=Search scope condition. Possible values are: - \"all\": Search all projects - \"my_project\": Search assigned projects - \"bookmarks\": Search bookmarked projects - \"subprojects\": Include subproject when project specified,enum=all,enum=my_project,enum=bookmarks,enum=subprojects"`
+	TitlesOnly  *bool   `json:"titles_only,omitempty" jsonschema:"description=matched only title or not."`
+	WikiPages   *bool   `json:"wiki_pages,omitempty" jsonschema:"description=Include documents or not."`
 } {
 	var pScope *string = nil
 	var pAllWords *bool = nil
@@ -144,18 +144,18 @@ func parseSearchIndexCommonQuery(request *mcp.CallToolRequest) *struct {
 	}
 
 	return &struct {
-		AllWords    *bool   "json:\"all_words,omitempty\""
-		Attachments *string "json:\"attachments,omitempty\""
-		Changesets  *bool   "json:\"changesets,omitempty\""
-		Documents   *bool   "json:\"documents,omitempty\""
-		Issues      *bool   "json:\"issues,omitempty\""
-		Messages    *bool   "json:\"messages,omitempty\""
-		News        *bool   "json:\"news,omitempty\""
-		OpenIssues  *bool   "json:\"open_issues,omitempty\""
-		Projects    *bool   "json:\"projects,omitempty\""
-		Scope       *string "json:\"scope,omitempty\""
-		TitlesOnly  *bool   "json:\"titles_only,omitempty\""
-		WikiPages   *bool   "json:\"wiki_pages,omitempty\""
+		AllWords    *bool   `json:"all_words,omitempty" jsonschema:"description=matched all query strings or not."`
+		Attachments *string `json:"attachments,omitempty" jsonschema:"description=Filterd by description and attachment. - \"0\": Seach only in description - \"1\": Search by description and attachment - \"only\": Search only in attachment"`
+		Changesets  *bool   `json:"changesets,omitempty" jsonschema:"description=Include changesets or not."`
+		Documents   *bool   `json:"documents,omitempty" jsonschema:"description=Include documents or not."`
+		Issues      *bool   `json:"issues,omitempty" jsonschema:"description=Include issues or not."`
+		Messages    *bool   `json:"messages,omitempty" jsonschema:"description=Include messages or not."`
+		News        *bool   `json:"news,omitempty" jsonschema:"description=Include news or not."`
+		OpenIssues  *bool   `json:"open_issues,omitempty" jsonschema:"description=Filterd by open issues."`
+		Projects    *bool   `json:"projects,omitempty" jsonschema:"description=Include projects or not."`
+		Scope       *string `json:"scope,omitempty" jsonschema:"description=Search scope condition. Possible values are: - \"all\": Search all projects - \"my_project\": Search assigned projects - \"bookmarks\": Search bookmarked projects - \"subprojects\": Include subproject when project specified,enum=all,enum=my_project,enum=bookmarks,enum=subprojects"`
+		TitlesOnly  *bool   `json:"titles_only,omitempty" jsonschema:"description=matched only title or not."`
+		WikiPages   *bool   `json:"wiki_pages,omitempty" jsonschema:"description=Include documents or not."`
 	}{
 		AllWords:    pAllWords,
 		Attachments: pAttachments,
