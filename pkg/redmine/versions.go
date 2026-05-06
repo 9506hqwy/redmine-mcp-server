@@ -2,184 +2,155 @@ package redmine
 
 import (
 	"context"
-	"math"
+	"encoding/json"
 
+	"github.com/invopop/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
-func registerVersionsIndex(s *server.MCPServer) {
-	tool := mcp.NewTool("versions_index",
-		mcp.WithDescription("Returns the versions available for the project with the specified ID or identifier (:project_id). The response may include shared versions from other projects."),
-		mcp.WithNumber("X-Redmine-Nometa",
-			mcp.Description("If set to 1, the response will not include metadata information."),
-
-			mcp.Enum("1"),
-		),
-		mcp.WithNumber("nometa",
-			mcp.Description("If set to 1, the response will not include metadata information."),
-
-			mcp.Enum("1"),
-		),
-		mcp.WithString("project_id",
-			mcp.Description("The ID or identifier of the project."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
-	)
-
-	s.AddTool(tool, versionsIndexHandler)
+type VersionsIndexRequest struct {
+	ProjectId string                      `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Params    *client.VersionsIndexParams `json:"params,omitempty"`
 }
 
-func versionsIndexHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func registerVersionsIndex(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&VersionsIndexRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("versions_index",
+		mcp.WithDescription("Returns the versions available for the project with the specified ID or identifier (:project_id). The response may include shared versions from other projects."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(versionsIndexHandler))
+}
+
+func versionsIndexHandler(ctx context.Context, request mcp.CallToolRequest, req VersionsIndexRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	project_id := request.GetString("project_id", "")
-	params := parseVersionsIndex(request)
-	return toResult(c.VersionsIndex(ctx, project_id, &params, authorizationHeader))
+	return toResult(c.VersionsIndex(ctx, req.ProjectId, req.Params, authorizationHeader))
 }
 
-func parseVersionsIndex(request mcp.CallToolRequest) client.VersionsIndexParams {
-	params := client.VersionsIndexParams{}
-
-	X_Redmine_Nometa := request.GetInt("X-Redmine-Nometa", math.MinInt)
-	if X_Redmine_Nometa != math.MinInt {
-
-		params.XRedmineNometa = &X_Redmine_Nometa
-	}
-
-	nometa := request.GetInt("nometa", math.MinInt)
-	if nometa != math.MinInt {
-
-		params.Nometa = &nometa
-	}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type VersionsShowTxtRequest struct {
+	Id     int                           `json:"id" jsonschema:"description=The ID of the version."`
+	Params *client.VersionsShowTxtParams `json:"params,omitempty"`
 }
 
 func registerVersionsShowTxt(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&VersionsShowTxtRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("versions_show_txt",
 		mcp.WithDescription("Returns the version with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the version."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, versionsShowTxtHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(versionsShowTxtHandler))
 }
 
-func versionsShowTxtHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func versionsShowTxtHandler(ctx context.Context, request mcp.CallToolRequest, req VersionsShowTxtRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseVersionsShowTxt(request)
-	return toResult(c.VersionsShowTxt(ctx, id, &params, authorizationHeader))
+	return toResult(c.VersionsShowTxt(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseVersionsShowTxt(request mcp.CallToolRequest) client.VersionsShowTxtParams {
-	params := client.VersionsShowTxtParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type VersionsDestroyRequest struct {
+	Id     int                           `json:"id" jsonschema:"description=The ID of the version."`
+	Params *client.VersionsDestroyParams `json:"params,omitempty"`
 }
 
 func registerVersionsDestroy(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&VersionsDestroyRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("versions_destroy",
 		mcp.WithDescription("Deletes the version with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the version."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, versionsDestroyHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(versionsDestroyHandler))
 }
 
-func versionsDestroyHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func versionsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req VersionsDestroyRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseVersionsDestroy(request)
-	return toResult(c.VersionsDestroy(ctx, id, &params, authorizationHeader))
+	return toResult(c.VersionsDestroy(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseVersionsDestroy(request mcp.CallToolRequest) client.VersionsDestroyParams {
-	params := client.VersionsDestroyParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type VersionsShowRequest struct {
+	Id     int                        `json:"id" jsonschema:"description=The ID of the version."`
+	Params *client.VersionsShowParams `json:"params,omitempty"`
 }
 
 func registerVersionsShow(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&VersionsShowRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("versions_show",
 		mcp.WithDescription("Returns the version with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the version."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, versionsShowHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(versionsShowHandler))
 }
 
-func versionsShowHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func versionsShowHandler(ctx context.Context, request mcp.CallToolRequest, req VersionsShowRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseVersionsShow(request)
-	return toResult(c.VersionsShow(ctx, id, &params, authorizationHeader))
-}
-
-func parseVersionsShow(request mcp.CallToolRequest) client.VersionsShowParams {
-	params := client.VersionsShowParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+	return toResult(c.VersionsShow(ctx, req.Id, req.Params, authorizationHeader))
 }

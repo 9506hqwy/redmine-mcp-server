@@ -2,151 +2,153 @@ package redmine
 
 import (
 	"context"
+	"encoding/json"
 
+	"github.com/invopop/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
-func registerGanttsShowPdf(s *server.MCPServer) {
-	tool := mcp.NewTool("gantts_show_pdf",
-		mcp.WithDescription("Download the Gantt chart."),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
-	)
-
-	s.AddTool(tool, ganttsShowPdfHandler)
+type GanttsShowPdfRequest struct {
+	Params *client.GanttsShowPdfParams `json:"params,omitempty"`
 }
 
-func ganttsShowPdfHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func registerGanttsShowPdf(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&GanttsShowPdfRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("gantts_show_pdf",
+		mcp.WithDescription("Download the Gantt chart."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(ganttsShowPdfHandler))
+}
+
+func ganttsShowPdfHandler(ctx context.Context, request mcp.CallToolRequest, req GanttsShowPdfRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := parseGanttsShowPdf(request)
-	return toResult(c.GanttsShowPdf(ctx, &params, authorizationHeader))
+	return toResult(c.GanttsShowPdf(ctx, req.Params, authorizationHeader))
 }
 
-func parseGanttsShowPdf(request mcp.CallToolRequest) client.GanttsShowPdfParams {
-	params := client.GanttsShowPdfParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type GanttsShowPngRequest struct {
+	Params *client.GanttsShowPngParams `json:"params,omitempty"`
 }
 
 func registerGanttsShowPng(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&GanttsShowPngRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("gantts_show_png",
 		mcp.WithDescription("Download the Gantt chart."),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, ganttsShowPngHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(ganttsShowPngHandler))
 }
 
-func ganttsShowPngHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func ganttsShowPngHandler(ctx context.Context, request mcp.CallToolRequest, req GanttsShowPngRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := parseGanttsShowPng(request)
-	return toResult(c.GanttsShowPng(ctx, &params, authorizationHeader))
+	return toResult(c.GanttsShowPng(ctx, req.Params, authorizationHeader))
 }
 
-func parseGanttsShowPng(request mcp.CallToolRequest) client.GanttsShowPngParams {
-	params := client.GanttsShowPngParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type GanttsShowProjectPdfRequest struct {
+	ProjectId string                             `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Params    *client.GanttsShowProjectPdfParams `json:"params,omitempty"`
 }
 
 func registerGanttsShowProjectPdf(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&GanttsShowProjectPdfRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("gantts_show_project_pdf",
 		mcp.WithDescription("Download the Gantt chart for the specified project."),
-		mcp.WithString("project_id",
-			mcp.Description("The ID or identifier of the project."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, ganttsShowProjectPdfHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(ganttsShowProjectPdfHandler))
 }
 
-func ganttsShowProjectPdfHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func ganttsShowProjectPdfHandler(ctx context.Context, request mcp.CallToolRequest, req GanttsShowProjectPdfRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	project_id := request.GetString("project_id", "")
-	params := parseGanttsShowProjectPdf(request)
-	return toResult(c.GanttsShowProjectPdf(ctx, project_id, &params, authorizationHeader))
+	return toResult(c.GanttsShowProjectPdf(ctx, req.ProjectId, req.Params, authorizationHeader))
 }
 
-func parseGanttsShowProjectPdf(request mcp.CallToolRequest) client.GanttsShowProjectPdfParams {
-	params := client.GanttsShowProjectPdfParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type GanttsShowProjectPngRequest struct {
+	ProjectId string                             `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Params    *client.GanttsShowProjectPngParams `json:"params,omitempty"`
 }
 
 func registerGanttsShowProjectPng(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&GanttsShowProjectPngRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("gantts_show_project_png",
 		mcp.WithDescription("Download the Gantt chart for the specified project."),
-		mcp.WithString("project_id",
-			mcp.Description("The ID or identifier of the project."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, ganttsShowProjectPngHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(ganttsShowProjectPngHandler))
 }
 
-func ganttsShowProjectPngHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func ganttsShowProjectPngHandler(ctx context.Context, request mcp.CallToolRequest, req GanttsShowProjectPngRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	project_id := request.GetString("project_id", "")
-	params := parseGanttsShowProjectPng(request)
-	return toResult(c.GanttsShowProjectPng(ctx, project_id, &params, authorizationHeader))
-}
-
-func parseGanttsShowProjectPng(request mcp.CallToolRequest) client.GanttsShowProjectPngParams {
-	params := client.GanttsShowProjectPngParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+	return toResult(c.GanttsShowProjectPng(ctx, req.ProjectId, req.Params, authorizationHeader))
 }

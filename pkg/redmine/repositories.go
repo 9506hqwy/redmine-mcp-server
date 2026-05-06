@@ -2,63 +2,50 @@ package redmine
 
 import (
 	"context"
-	"math"
+	"encoding/json"
 
+	"github.com/invopop/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
-func registerRepositoriesRemoveRelatedIssue(s *server.MCPServer) {
-	tool := mcp.NewTool("repositories_remove_related_issue",
-		mcp.WithDescription("Remove a related issue from the specified revision."),
-		mcp.WithString("id",
-			mcp.Description("The ID or identifier of the project."),
-			mcp.Required(),
-		),
-		mcp.WithString("repository_id",
-			mcp.Description("The unique identifier of the repository."),
-			mcp.Required(),
-		),
-		mcp.WithString("rev",
-			mcp.Description("The revision identifier of the changeset."),
-			mcp.Required(),
-		),
-		mcp.WithNumber("issue_id",
-			mcp.Description("The ID of the issue."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
-	)
-
-	s.AddTool(tool, repositoriesRemoveRelatedIssueHandler)
+type RepositoriesRemoveRelatedIssueRequest struct {
+	Id           string                                       `json:"id" jsonschema:"description=The ID or identifier of the project."`
+	RepositoryId string                                       `json:"repository_id" jsonschema:"description=The unique identifier of the repository."`
+	Rev          string                                       `json:"rev" jsonschema:"description=The revision identifier of the changeset."`
+	IssueId      int                                          `json:"issue_id" jsonschema:"description=The ID of the issue."`
+	Params       *client.RepositoriesRemoveRelatedIssueParams `json:"params,omitempty"`
 }
 
-func repositoriesRemoveRelatedIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func registerRepositoriesRemoveRelatedIssue(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&RepositoriesRemoveRelatedIssueRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("repositories_remove_related_issue",
+		mcp.WithDescription("Remove a related issue from the specified revision."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(repositoriesRemoveRelatedIssueHandler))
+}
+
+func repositoriesRemoveRelatedIssueHandler(ctx context.Context, request mcp.CallToolRequest, req RepositoriesRemoveRelatedIssueRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetString("id", "")
-	repository_id := request.GetString("repository_id", "")
-	rev := request.GetString("rev", "")
-	issue_id := request.GetInt("issue_id", math.MinInt)
-	params := parseRepositoriesRemoveRelatedIssue(request)
-	return toResult(c.RepositoriesRemoveRelatedIssue(ctx, id, repository_id, rev, issue_id, &params, authorizationHeader))
-}
-
-func parseRepositoriesRemoveRelatedIssue(request mcp.CallToolRequest) client.RepositoriesRemoveRelatedIssueParams {
-	params := client.RepositoriesRemoveRelatedIssueParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+	return toResult(c.RepositoriesRemoveRelatedIssue(ctx, req.Id, req.RepositoryId, req.Rev, req.IssueId, req.Params, authorizationHeader))
 }

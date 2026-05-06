@@ -2,42 +2,46 @@ package redmine
 
 import (
 	"context"
+	"encoding/json"
 
+	"github.com/invopop/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
-func registerMyAccount(s *server.MCPServer) {
-	tool := mcp.NewTool("my_account",
-		mcp.WithDescription("Returns the current user's account information."),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
-	)
-
-	s.AddTool(tool, myAccountHandler)
+type MyAccountRequest struct {
+	Params *client.MyAccountParams `json:"params,omitempty"`
 }
 
-func myAccountHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func registerMyAccount(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&MyAccountRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("my_account",
+		mcp.WithDescription("Returns the current user's account information."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(myAccountHandler))
+}
+
+func myAccountHandler(ctx context.Context, request mcp.CallToolRequest, req MyAccountRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := parseMyAccount(request)
-	return toResult(c.MyAccount(ctx, &params, authorizationHeader))
-}
-
-func parseMyAccount(request mcp.CallToolRequest) client.MyAccountParams {
-	params := client.MyAccountParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+	return toResult(c.MyAccount(ctx, req.Params, authorizationHeader))
 }

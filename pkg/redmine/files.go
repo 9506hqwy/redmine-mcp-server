@@ -2,47 +2,47 @@ package redmine
 
 import (
 	"context"
+	"encoding/json"
 
+	"github.com/invopop/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
-func registerFilesIndex(s *server.MCPServer) {
-	tool := mcp.NewTool("files_index",
-		mcp.WithDescription("Returns a list of all files."),
-		mcp.WithString("project_id",
-			mcp.Description("The ID or identifier of the project."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
-	)
-
-	s.AddTool(tool, filesIndexHandler)
+type FilesIndexRequest struct {
+	ProjectId string                   `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Params    *client.FilesIndexParams `json:"params,omitempty"`
 }
 
-func filesIndexHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func registerFilesIndex(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&FilesIndexRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("files_index",
+		mcp.WithDescription("Returns a list of all files."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(filesIndexHandler))
+}
+
+func filesIndexHandler(ctx context.Context, request mcp.CallToolRequest, req FilesIndexRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	project_id := request.GetString("project_id", "")
-	params := parseFilesIndex(request)
-	return toResult(c.FilesIndex(ctx, project_id, &params, authorizationHeader))
-}
-
-func parseFilesIndex(request mcp.CallToolRequest) client.FilesIndexParams {
-	params := client.FilesIndexParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+	return toResult(c.FilesIndex(ctx, req.ProjectId, req.Params, authorizationHeader))
 }

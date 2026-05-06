@@ -2,215 +2,154 @@ package redmine
 
 import (
 	"context"
-	"math"
-	"strings"
+	"encoding/json"
 
+	"github.com/invopop/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
-func registerNewsIndex(s *server.MCPServer) {
-	tool := mcp.NewTool("news_index",
-		mcp.WithDescription("Returns all news items across all projects with pagination."),
-		mcp.WithNumber("X-Redmine-Nometa",
-			mcp.Description("If set to 1, the response will not include metadata information."),
-
-			mcp.Enum("1"),
-		),
-		mcp.WithNumber("pagination.offset",
-			mcp.Description("The offset of the first object to retrieve If not specified, it defaults to 0. (default: 0)"),
-		),
-		mcp.WithNumber("pagination.limit",
-			mcp.Description("The number of items to be present in the response. If not specified, it defaults to 25. (default: 25)"),
-		),
-		mcp.WithNumber("pagination.nometa",
-			mcp.Description("If set to 1, the response will not include pagination information."),
-
-			mcp.Enum("1"),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
-	)
-
-	s.AddTool(tool, newsIndexHandler)
+type NewsIndexRequest struct {
+	Params *client.NewsIndexParams `json:"params,omitempty"`
 }
 
-func newsIndexHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func registerNewsIndex(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&NewsIndexRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("news_index",
+		mcp.WithDescription("Returns all news items across all projects with pagination."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(newsIndexHandler))
+}
+
+func newsIndexHandler(ctx context.Context, request mcp.CallToolRequest, req NewsIndexRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	params := parseNewsIndex(request)
-	return toResult(c.NewsIndex(ctx, &params, authorizationHeader))
+	return toResult(c.NewsIndex(ctx, req.Params, authorizationHeader))
 }
 
-func parseNewsIndex(request mcp.CallToolRequest) client.NewsIndexParams {
-	params := client.NewsIndexParams{}
-
-	X_Redmine_Nometa := request.GetInt("X-Redmine-Nometa", math.MinInt)
-	if X_Redmine_Nometa != math.MinInt {
-
-		params.XRedmineNometa = &X_Redmine_Nometa
-	}
-
-	params.Pagination = parsePagination(&request)
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type NewsDestroyRequest struct {
+	Id     int                       `json:"id" jsonschema:"description=The ID of the news."`
+	Params *client.NewsDestroyParams `json:"params,omitempty"`
 }
 
 func registerNewsDestroy(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&NewsDestroyRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("news_destroy",
 		mcp.WithDescription("Deletes the news with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the news."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, newsDestroyHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(newsDestroyHandler))
 }
 
-func newsDestroyHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func newsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req NewsDestroyRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseNewsDestroy(request)
-	return toResult(c.NewsDestroy(ctx, id, &params, authorizationHeader))
+	return toResult(c.NewsDestroy(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseNewsDestroy(request mcp.CallToolRequest) client.NewsDestroyParams {
-	params := client.NewsDestroyParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type NewsShowRequest struct {
+	Id     int                    `json:"id" jsonschema:"description=The ID of the news."`
+	Params *client.NewsShowParams `json:"params,omitempty"`
 }
 
 func registerNewsShow(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&NewsShowRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("news_show",
 		mcp.WithDescription("Returns the news item with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the news."),
-			mcp.Required(),
-		),
-		mcp.WithString("include",
-			mcp.Description("fetch associated data (optional). Possible values: `attachments`, `comments`."),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, newsShowHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(newsShowHandler))
 }
 
-func newsShowHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func newsShowHandler(ctx context.Context, request mcp.CallToolRequest, req NewsShowRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseNewsShow(request)
-	return toResult(c.NewsShow(ctx, id, &params, authorizationHeader))
+	return toResult(c.NewsShow(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseNewsShow(request mcp.CallToolRequest) client.NewsShowParams {
-	params := client.NewsShowParams{}
-
-	include := request.GetString("include", "")
-	if include != "" {
-		include := strings.Split(include, ",")
-		params.Include = &include
-	}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type NewsIndexProjectRequest struct {
+	ProjectId string                         `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Params    *client.NewsIndexProjectParams `json:"params,omitempty"`
 }
 
 func registerNewsIndexProject(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&NewsIndexProjectRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("news_index_project",
 		mcp.WithDescription("Returns all news items across all projects with pagination."),
-		mcp.WithNumber("X-Redmine-Nometa",
-			mcp.Description("If set to 1, the response will not include metadata information."),
-
-			mcp.Enum("1"),
-		),
-		mcp.WithNumber("pagination.offset",
-			mcp.Description("The offset of the first object to retrieve If not specified, it defaults to 0. (default: 0)"),
-		),
-		mcp.WithNumber("pagination.limit",
-			mcp.Description("The number of items to be present in the response. If not specified, it defaults to 25. (default: 25)"),
-		),
-		mcp.WithNumber("pagination.nometa",
-			mcp.Description("If set to 1, the response will not include pagination information."),
-
-			mcp.Enum("1"),
-		),
-		mcp.WithString("project_id",
-			mcp.Description("The ID or identifier of the project."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, newsIndexProjectHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(newsIndexProjectHandler))
 }
 
-func newsIndexProjectHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func newsIndexProjectHandler(ctx context.Context, request mcp.CallToolRequest, req NewsIndexProjectRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	project_id := request.GetString("project_id", "")
-	params := parseNewsIndexProject(request)
-	return toResult(c.NewsIndexProject(ctx, project_id, &params, authorizationHeader))
-}
-
-func parseNewsIndexProject(request mcp.CallToolRequest) client.NewsIndexProjectParams {
-	params := client.NewsIndexProjectParams{}
-
-	X_Redmine_Nometa := request.GetInt("X-Redmine-Nometa", math.MinInt)
-	if X_Redmine_Nometa != math.MinInt {
-
-		params.XRedmineNometa = &X_Redmine_Nometa
-	}
-
-	params.Pagination = parsePagination(&request)
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+	return toResult(c.NewsIndexProject(ctx, req.ProjectId, req.Params, authorizationHeader))
 }

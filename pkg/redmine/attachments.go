@@ -2,248 +2,229 @@ package redmine
 
 import (
 	"context"
-	"math"
+	"encoding/json"
 
+	"github.com/invopop/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
-func registerAttachmentsDownload(s *server.MCPServer) {
-	tool := mcp.NewTool("attachments_download",
-		mcp.WithDescription("Download the attachment with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the attachment."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
-	)
-
-	s.AddTool(tool, attachmentsDownloadHandler)
+type AttachmentsDownloadRequest struct {
+	Id     int                               `json:"id" jsonschema:"description=The ID of the attachment."`
+	Params *client.AttachmentsDownloadParams `json:"params,omitempty"`
 }
 
-func attachmentsDownloadHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func registerAttachmentsDownload(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&AttachmentsDownloadRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("attachments_download",
+		mcp.WithDescription("Download the attachment with the specified ID."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(attachmentsDownloadHandler))
+}
+
+func attachmentsDownloadHandler(ctx context.Context, request mcp.CallToolRequest, req AttachmentsDownloadRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseAttachmentsDownload(request)
-	return toResult(c.AttachmentsDownload(ctx, id, &params, authorizationHeader))
+	return toResult(c.AttachmentsDownload(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseAttachmentsDownload(request mcp.CallToolRequest) client.AttachmentsDownloadParams {
-	params := client.AttachmentsDownloadParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type AttachmentsThumbnailRequest struct {
+	Id     int                                `json:"id" jsonschema:"description=The ID of the attachment."`
+	Params *client.AttachmentsThumbnailParams `json:"params,omitempty"`
 }
 
 func registerAttachmentsThumbnail(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&AttachmentsThumbnailRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("attachments_thumbnail",
 		mcp.WithDescription("Download the thumbnail of the attachment with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the attachment."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, attachmentsThumbnailHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(attachmentsThumbnailHandler))
 }
 
-func attachmentsThumbnailHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func attachmentsThumbnailHandler(ctx context.Context, request mcp.CallToolRequest, req AttachmentsThumbnailRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseAttachmentsThumbnail(request)
-	return toResult(c.AttachmentsThumbnail(ctx, id, &params, authorizationHeader))
+	return toResult(c.AttachmentsThumbnail(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseAttachmentsThumbnail(request mcp.CallToolRequest) client.AttachmentsThumbnailParams {
-	params := client.AttachmentsThumbnailParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type AttachmentsThumbnailSizeRequest struct {
+	Id     int                                    `json:"id" jsonschema:"description=The ID of the attachment."`
+	Size   int                                    `json:"size" jsonschema:"description=The size of the attachment."`
+	Params *client.AttachmentsThumbnailSizeParams `json:"params,omitempty"`
 }
 
 func registerAttachmentsThumbnailSize(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&AttachmentsThumbnailSizeRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("attachments_thumbnail_size",
 		mcp.WithDescription("Downloads the attachment thumbnail with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the attachment."),
-			mcp.Required(),
-		),
-		mcp.WithNumber("size",
-			mcp.Description("The size of the attachment."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, attachmentsThumbnailSizeHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(attachmentsThumbnailSizeHandler))
 }
 
-func attachmentsThumbnailSizeHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func attachmentsThumbnailSizeHandler(ctx context.Context, request mcp.CallToolRequest, req AttachmentsThumbnailSizeRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	size := request.GetInt("size", math.MinInt)
-	params := parseAttachmentsThumbnailSize(request)
-	return toResult(c.AttachmentsThumbnailSize(ctx, id, size, &params, authorizationHeader))
+	return toResult(c.AttachmentsThumbnailSize(ctx, req.Id, req.Size, req.Params, authorizationHeader))
 }
 
-func parseAttachmentsThumbnailSize(request mcp.CallToolRequest) client.AttachmentsThumbnailSizeParams {
-	params := client.AttachmentsThumbnailSizeParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type AttachmentsDestroyRequest struct {
+	Id     int                              `json:"id" jsonschema:"description=The ID of the attachment."`
+	Params *client.AttachmentsDestroyParams `json:"params,omitempty"`
 }
 
 func registerAttachmentsDestroy(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&AttachmentsDestroyRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("attachments_destroy",
 		mcp.WithDescription("Deletes the attachment with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the attachment."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, attachmentsDestroyHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(attachmentsDestroyHandler))
 }
 
-func attachmentsDestroyHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func attachmentsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req AttachmentsDestroyRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseAttachmentsDestroy(request)
-	return toResult(c.AttachmentsDestroy(ctx, id, &params, authorizationHeader))
+	return toResult(c.AttachmentsDestroy(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseAttachmentsDestroy(request mcp.CallToolRequest) client.AttachmentsDestroyParams {
-	params := client.AttachmentsDestroyParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type AttachmentsShowRequest struct {
+	Id     int                           `json:"id" jsonschema:"description=The ID of the attachment."`
+	Params *client.AttachmentsShowParams `json:"params,omitempty"`
 }
 
 func registerAttachmentsShow(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&AttachmentsShowRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("attachments_show",
 		mcp.WithDescription("Returns the attachment with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the attachment."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, attachmentsShowHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(attachmentsShowHandler))
 }
 
-func attachmentsShowHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func attachmentsShowHandler(ctx context.Context, request mcp.CallToolRequest, req AttachmentsShowRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseAttachmentsShow(request)
-	return toResult(c.AttachmentsShow(ctx, id, &params, authorizationHeader))
+	return toResult(c.AttachmentsShow(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseAttachmentsShow(request mcp.CallToolRequest) client.AttachmentsShowParams {
-	params := client.AttachmentsShowParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type AttachmentsDownloadAllRequest struct {
+	ObjectType string                               `json:"object_type" jsonschema:"description=The object type of the attachment."`
+	ObjectId   int                                  `json:"object_id" jsonschema:"description=The object ID of the attachment."`
+	Params     *client.AttachmentsDownloadAllParams `json:"params,omitempty"`
 }
 
 func registerAttachmentsDownloadAll(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&AttachmentsDownloadAllRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("attachments_download_all",
 		mcp.WithDescription("Downloads the attachment with the specified ID."),
-		mcp.WithString("object_type",
-			mcp.Description("The object type of the attachment."),
-			mcp.Required(),
-		),
-		mcp.WithNumber("object_id",
-			mcp.Description("The object ID of the attachment."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, attachmentsDownloadAllHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(attachmentsDownloadAllHandler))
 }
 
-func attachmentsDownloadAllHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func attachmentsDownloadAllHandler(ctx context.Context, request mcp.CallToolRequest, req AttachmentsDownloadAllRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	object_type := request.GetString("object_type", "")
-	object_id := request.GetInt("object_id", math.MinInt)
-	params := parseAttachmentsDownloadAll(request)
-	return toResult(c.AttachmentsDownloadAll(ctx, object_type, object_id, &params, authorizationHeader))
-}
-
-func parseAttachmentsDownloadAll(request mcp.CallToolRequest) client.AttachmentsDownloadAllParams {
-	params := client.AttachmentsDownloadAllParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+	return toResult(c.AttachmentsDownloadAll(ctx, req.ObjectType, req.ObjectId, req.Params, authorizationHeader))
 }

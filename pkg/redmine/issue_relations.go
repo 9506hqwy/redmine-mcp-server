@@ -2,124 +2,119 @@ package redmine
 
 import (
 	"context"
-	"math"
+	"encoding/json"
 
+	"github.com/invopop/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
-func registerIssueRelationsIndex(s *server.MCPServer) {
-	tool := mcp.NewTool("issue_relations_index",
-		mcp.WithDescription("Returns the relations for the specified issue ID."),
-		mcp.WithNumber("issue_id",
-			mcp.Description("The ID of the issue."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
-	)
-
-	s.AddTool(tool, issueRelationsIndexHandler)
+type IssueRelationsIndexRequest struct {
+	IssueId int                               `json:"issue_id" jsonschema:"description=The ID of the issue."`
+	Params  *client.IssueRelationsIndexParams `json:"params,omitempty"`
 }
 
-func issueRelationsIndexHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func registerIssueRelationsIndex(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&IssueRelationsIndexRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("issue_relations_index",
+		mcp.WithDescription("Returns the relations for the specified issue ID."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(issueRelationsIndexHandler))
+}
+
+func issueRelationsIndexHandler(ctx context.Context, request mcp.CallToolRequest, req IssueRelationsIndexRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	issue_id := request.GetInt("issue_id", math.MinInt)
-	params := parseIssueRelationsIndex(request)
-	return toResult(c.IssueRelationsIndex(ctx, issue_id, &params, authorizationHeader))
+	return toResult(c.IssueRelationsIndex(ctx, req.IssueId, req.Params, authorizationHeader))
 }
 
-func parseIssueRelationsIndex(request mcp.CallToolRequest) client.IssueRelationsIndexParams {
-	params := client.IssueRelationsIndexParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type IssueRelationsDestroyRequest struct {
+	Id     int                                 `json:"id" jsonschema:"description=The ID of the relation."`
+	Params *client.IssueRelationsDestroyParams `json:"params,omitempty"`
 }
 
 func registerIssueRelationsDestroy(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&IssueRelationsDestroyRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("issue_relations_destroy",
 		mcp.WithDescription("Deletes the relation with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the relation."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, issueRelationsDestroyHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(issueRelationsDestroyHandler))
 }
 
-func issueRelationsDestroyHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func issueRelationsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req IssueRelationsDestroyRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseIssueRelationsDestroy(request)
-	return toResult(c.IssueRelationsDestroy(ctx, id, &params, authorizationHeader))
+	return toResult(c.IssueRelationsDestroy(ctx, req.Id, req.Params, authorizationHeader))
 }
 
-func parseIssueRelationsDestroy(request mcp.CallToolRequest) client.IssueRelationsDestroyParams {
-	params := client.IssueRelationsDestroyParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+type IssueRelationsShowRequest struct {
+	Id     int                              `json:"id" jsonschema:"description=The ID of the relation."`
+	Params *client.IssueRelationsShowParams `json:"params,omitempty"`
 }
 
 func registerIssueRelationsShow(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&IssueRelationsShowRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
 	tool := mcp.NewTool("issue_relations_show",
 		mcp.WithDescription("Returns the relation with the specified ID."),
-		mcp.WithNumber("id",
-			mcp.Description("The ID of the relation."),
-			mcp.Required(),
-		),
-		mcp.WithString("X-Redmine-Switch-User",
-			mcp.Description("This only works when using the API with an administrator account, this header will be ignored when using the API with a regular user account."),
-		),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
 	)
 
-	s.AddTool(tool, issueRelationsShowHandler)
+	s.AddTool(tool, mcp.NewTypedToolHandler(issueRelationsShowHandler))
 }
 
-func issueRelationsShowHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func issueRelationsShowHandler(ctx context.Context, request mcp.CallToolRequest, req IssueRelationsShowRequest) (*mcp.CallToolResult, error) {
 	c, err := newClient(ctx)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	id := request.GetInt("id", math.MinInt)
-	params := parseIssueRelationsShow(request)
-	return toResult(c.IssueRelationsShow(ctx, id, &params, authorizationHeader))
-}
-
-func parseIssueRelationsShow(request mcp.CallToolRequest) client.IssueRelationsShowParams {
-	params := client.IssueRelationsShowParams{}
-
-	X_Redmine_Switch_User := request.GetString("X-Redmine-Switch-User", "")
-	if X_Redmine_Switch_User != "" {
-
-		params.XRedmineSwitchUser = &X_Redmine_Switch_User
-	}
-
-	return params
+	return toResult(c.IssueRelationsShow(ctx, req.Id, req.Params, authorizationHeader))
 }
