@@ -50,7 +50,7 @@ func issueCategoriesDestroyHandler(ctx context.Context, request mcp.CallToolRequ
 type IssueCategoriesUpdatePatchRequest struct {
 	Id     int                                              `json:"id" jsonschema:"description=The ID of the issue category."`
 	Params *client.IssueCategoriesUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.IssueCategoriesUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.IssueCategoriesUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerIssueCategoriesUpdatePatch(s *server.MCPServer) {
@@ -123,7 +123,7 @@ func issueCategoriesShowHandler(ctx context.Context, request mcp.CallToolRequest
 type IssueCategoriesCreateRequest struct {
 	ProjectId string                                      `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Params    *client.IssueCategoriesCreateParams         `json:"params,omitempty"`
-	Body      client.IssueCategoriesCreateJSONRequestBody `json:"body,omitempty"`
+	Body      client.IssueCategoriesCreateJSONRequestBody `json:"body"`
 }
 
 func registerIssueCategoriesCreate(s *server.MCPServer) {

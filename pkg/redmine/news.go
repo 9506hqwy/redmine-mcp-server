@@ -13,7 +13,7 @@ import (
 
 type NewsCreateRequest struct {
 	Params *client.NewsCreateParams         `json:"params,omitempty"`
-	Body   client.NewsCreateJSONRequestBody `json:"body,omitempty"`
+	Body   client.NewsCreateJSONRequestBody `json:"body"`
 }
 
 func registerNewsCreate(s *server.MCPServer) {
@@ -121,7 +121,7 @@ func newsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req Ne
 type NewsUpdatePatchRequest struct {
 	Id     int                                   `json:"id" jsonschema:"description=The ID of the news."`
 	Params *client.NewsUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.NewsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.NewsUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerNewsUpdatePatch(s *server.MCPServer) {
@@ -194,7 +194,7 @@ func newsShowHandler(ctx context.Context, request mcp.CallToolRequest, req NewsS
 type NewsCreateProjectRequest struct {
 	ProjectId string                                  `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Params    *client.NewsCreateProjectParams         `json:"params,omitempty"`
-	Body      client.NewsCreateProjectJSONRequestBody `json:"body,omitempty"`
+	Body      client.NewsCreateProjectJSONRequestBody `json:"body"`
 }
 
 func registerNewsCreateProject(s *server.MCPServer) {

@@ -14,7 +14,7 @@ import (
 type JournalsUpdatePatchRequest struct {
 	Id     int                                       `json:"id" jsonschema:"description=The ID of the journal."`
 	Params *client.JournalsUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.JournalsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.JournalsUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerJournalsUpdatePatch(s *server.MCPServer) {

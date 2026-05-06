@@ -16,7 +16,7 @@ type RepositoriesAddRelatedIssueRequest struct {
 	RepositoryId string                                            `json:"repository_id" jsonschema:"description=The unique identifier of the repository."`
 	Rev          string                                            `json:"rev" jsonschema:"description=The revision identifier of the changeset."`
 	Params       *client.RepositoriesAddRelatedIssueParams         `json:"params,omitempty"`
-	Body         client.RepositoriesAddRelatedIssueJSONRequestBody `json:"body,omitempty"`
+	Body         client.RepositoriesAddRelatedIssueJSONRequestBody `json:"body"`
 }
 
 func registerRepositoriesAddRelatedIssue(s *server.MCPServer) {

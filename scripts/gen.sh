@@ -114,7 +114,7 @@ function write-request-struct(){
     # body
     BODY_SMTM_STR=""
     if [[ -n "${REQ_BODY}" && "${REQ_BODY}" != 'null' ]]; then
-        BODY_SMTM_STR="Body client.${API_NAME}JSONRequestBody \`json:\"body,omitempty\"\`"
+        BODY_SMTM_STR="Body client.${API_NAME}JSONRequestBody \`json:\"body\"\`"
     fi
 
     FILE_PATH=$(filename "$(yq -r '.tags[0]' <<<"${PATH_INFO}")")

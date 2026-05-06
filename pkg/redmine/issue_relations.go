@@ -14,7 +14,7 @@ import (
 type IssueRelationsCreateRequest struct {
 	IssueId int                                        `json:"issue_id" jsonschema:"description=The ID of the issue."`
 	Params  *client.IssueRelationsCreateParams         `json:"params,omitempty"`
-	Body    client.IssueRelationsCreateJSONRequestBody `json:"body,omitempty"`
+	Body    client.IssueRelationsCreateJSONRequestBody `json:"body"`
 }
 
 func registerIssueRelationsCreate(s *server.MCPServer) {

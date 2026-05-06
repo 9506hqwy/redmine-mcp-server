@@ -159,7 +159,7 @@ func attachmentsDestroyHandler(ctx context.Context, request mcp.CallToolRequest,
 type AttachmentsUpdatePatchRequest struct {
 	Id     int                                          `json:"id" jsonschema:"description=The ID of the attachment."`
 	Params *client.AttachmentsUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.AttachmentsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.AttachmentsUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerAttachmentsUpdatePatch(s *server.MCPServer) {

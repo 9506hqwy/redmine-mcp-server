@@ -14,7 +14,7 @@ import (
 type TimelogCreateIssueRequest struct {
 	IssueId int                                      `json:"issue_id" jsonschema:"description=The ID of the issue."`
 	Params  *client.TimelogCreateIssueParams         `json:"params,omitempty"`
-	Body    client.TimelogCreateIssueJSONRequestBody `json:"body,omitempty"`
+	Body    client.TimelogCreateIssueJSONRequestBody `json:"body"`
 }
 
 func registerTimelogCreateIssue(s *server.MCPServer) {
@@ -87,7 +87,7 @@ func timelogIndexProjectCsvHandler(ctx context.Context, request mcp.CallToolRequ
 type TimelogCreateProjectRequest struct {
 	ProjectId string                                     `json:"project_id" jsonschema:"description=The ID or identifer of the project."`
 	Params    *client.TimelogCreateProjectParams         `json:"params,omitempty"`
-	Body      client.TimelogCreateProjectJSONRequestBody `json:"body,omitempty"`
+	Body      client.TimelogCreateProjectJSONRequestBody `json:"body"`
 }
 
 func registerTimelogCreateProject(s *server.MCPServer) {
@@ -194,7 +194,7 @@ func timelogIndexCsvHandler(ctx context.Context, request mcp.CallToolRequest, re
 
 type TimelogCreateRequest struct {
 	Params *client.TimelogCreateParams         `json:"params,omitempty"`
-	Body   client.TimelogCreateJSONRequestBody `json:"body,omitempty"`
+	Body   client.TimelogCreateJSONRequestBody `json:"body"`
 }
 
 func registerTimelogCreate(s *server.MCPServer) {
@@ -302,7 +302,7 @@ func timelogDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req
 type TimelogUpdatePatchRequest struct {
 	Id     int                                      `json:"id" jsonschema:"description=The ID of the time entry."`
 	Params *client.TimelogUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.TimelogUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.TimelogUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerTimelogUpdatePatch(s *server.MCPServer) {

@@ -13,7 +13,7 @@ import (
 
 type GroupsCreateRequest struct {
 	Params *client.GroupsCreateParams         `json:"params,omitempty"`
-	Body   client.GroupsCreateJSONRequestBody `json:"body,omitempty"`
+	Body   client.GroupsCreateJSONRequestBody `json:"body"`
 }
 
 func registerGroupsCreate(s *server.MCPServer) {
@@ -121,7 +121,7 @@ func groupsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req 
 type GroupsUpdatePatchRequest struct {
 	Id     int                                     `json:"id" jsonschema:"description=The ID of the group."`
 	Params *client.GroupsUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.GroupsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.GroupsUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerGroupsUpdatePatch(s *server.MCPServer) {
@@ -194,7 +194,7 @@ func groupsShowHandler(ctx context.Context, request mcp.CallToolRequest, req Gro
 type GroupsAddUsersRequest struct {
 	Id     int                                  `json:"id" jsonschema:"description=The ID of the group."`
 	Params *client.GroupsAddUsersParams         `json:"params,omitempty"`
-	Body   client.GroupsAddUsersJSONRequestBody `json:"body,omitempty"`
+	Body   client.GroupsAddUsersJSONRequestBody `json:"body"`
 }
 
 func registerGroupsAddUsers(s *server.MCPServer) {

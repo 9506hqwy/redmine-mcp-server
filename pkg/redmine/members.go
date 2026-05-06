@@ -50,7 +50,7 @@ func membersDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req
 type MembersUpdatePatchRequest struct {
 	Id     int                                      `json:"id" jsonschema:"description=The ID of the membership."`
 	Params *client.MembersUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.MembersUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.MembersUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerMembersUpdatePatch(s *server.MCPServer) {
@@ -123,7 +123,7 @@ func membersShowHandler(ctx context.Context, request mcp.CallToolRequest, req Me
 type MembersCreateRequest struct {
 	ProjectId string                              `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Params    *client.MembersCreateParams         `json:"params,omitempty"`
-	Body      client.MembersCreateJSONRequestBody `json:"body,omitempty"`
+	Body      client.MembersCreateJSONRequestBody `json:"body"`
 }
 
 func registerMembersCreate(s *server.MCPServer) {

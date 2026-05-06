@@ -48,7 +48,7 @@ func projectsIndexCsvHandler(ctx context.Context, request mcp.CallToolRequest, r
 
 type ProjectsCreateRequest struct {
 	Params *client.ProjectsCreateParams         `json:"params,omitempty"`
-	Body   client.ProjectsCreateJSONRequestBody `json:"body,omitempty"`
+	Body   client.ProjectsCreateJSONRequestBody `json:"body"`
 }
 
 func registerProjectsCreate(s *server.MCPServer) {
@@ -156,7 +156,7 @@ func projectsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, re
 type ProjectsUpdatePatchRequest struct {
 	Id     string                                    `json:"id" jsonschema:"description=The ID or identifier of the project."`
 	Params *client.ProjectsUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.ProjectsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.ProjectsUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerProjectsUpdatePatch(s *server.MCPServer) {

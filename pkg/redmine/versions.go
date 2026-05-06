@@ -14,7 +14,7 @@ import (
 type VersionsCreateRequest struct {
 	ProjectId string                               `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Params    *client.VersionsCreateParams         `json:"params,omitempty"`
-	Body      client.VersionsCreateJSONRequestBody `json:"body,omitempty"`
+	Body      client.VersionsCreateJSONRequestBody `json:"body"`
 }
 
 func registerVersionsCreate(s *server.MCPServer) {
@@ -159,7 +159,7 @@ func versionsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, re
 type VersionsUpdatePatchRequest struct {
 	Id     int                                       `json:"id" jsonschema:"description=The ID of the version."`
 	Params *client.VersionsUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.VersionsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.VersionsUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerVersionsUpdatePatch(s *server.MCPServer) {

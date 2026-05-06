@@ -14,7 +14,7 @@ import (
 type WatchersCreateIssueRequest struct {
 	IssueId int                                       `json:"issue_id" jsonschema:"description=The ID of the issue."`
 	Params  *client.WatchersCreateIssueParams         `json:"params,omitempty"`
-	Body    client.WatchersCreateIssueJSONRequestBody `json:"body,omitempty"`
+	Body    client.WatchersCreateIssueJSONRequestBody `json:"body"`
 }
 
 func registerWatchersCreateIssue(s *server.MCPServer) {
@@ -122,7 +122,7 @@ func watchersDestroyHandler(ctx context.Context, request mcp.CallToolRequest, re
 
 type WatchersCreateRequest struct {
 	Params *client.WatchersCreateParams         `json:"params,omitempty"`
-	Body   client.WatchersCreateJSONRequestBody `json:"body,omitempty"`
+	Body   client.WatchersCreateJSONRequestBody `json:"body"`
 }
 
 func registerWatchersCreate(s *server.MCPServer) {

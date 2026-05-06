@@ -48,7 +48,7 @@ func usersIndexCsvHandler(ctx context.Context, request mcp.CallToolRequest, req 
 
 type UsersCreateRequest struct {
 	Params *client.UsersCreateParams         `json:"params,omitempty"`
-	Body   client.UsersCreateJSONRequestBody `json:"body,omitempty"`
+	Body   client.UsersCreateJSONRequestBody `json:"body"`
 }
 
 func registerUsersCreate(s *server.MCPServer) {
@@ -156,7 +156,7 @@ func usersDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req U
 type UsersUpdatePatchRequest struct {
 	Id     string                                 `json:"id" jsonschema:"description=The ID or 'current' of the user."`
 	Params *client.UsersUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.UsersUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.UsersUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerUsersUpdatePatch(s *server.MCPServer) {

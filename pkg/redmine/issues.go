@@ -48,7 +48,7 @@ func issuesIndexCsvHandler(ctx context.Context, request mcp.CallToolRequest, req
 
 type IssuesCreateRequest struct {
 	Params *client.IssuesCreateParams         `json:"params,omitempty"`
-	Body   client.IssuesCreateJSONRequestBody `json:"body,omitempty"`
+	Body   client.IssuesCreateJSONRequestBody `json:"body"`
 }
 
 func registerIssuesCreate(s *server.MCPServer) {
@@ -191,7 +191,7 @@ func issuesDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req 
 type IssuesUpdatePatchRequest struct {
 	Id     int                                     `json:"id" jsonschema:"description=The ID of the issue."`
 	Params *client.IssuesUpdatePatchParams         `json:"params,omitempty"`
-	Body   client.IssuesUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body   client.IssuesUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerIssuesUpdatePatch(s *server.MCPServer) {
@@ -336,7 +336,7 @@ func issuesIndexProjectCsvHandler(ctx context.Context, request mcp.CallToolReque
 type IssuesCreateProjectRequest struct {
 	ProjectId string                                    `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Params    *client.IssuesCreateProjectParams         `json:"params,omitempty"`
-	Body      client.IssuesCreateProjectJSONRequestBody `json:"body,omitempty"`
+	Body      client.IssuesCreateProjectJSONRequestBody `json:"body"`
 }
 
 func registerIssuesCreateProject(s *server.MCPServer) {

@@ -14,7 +14,7 @@ import (
 type FilesCreateRequest struct {
 	ProjectId string                            `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Params    *client.FilesCreateParams         `json:"params,omitempty"`
-	Body      client.FilesCreateJSONRequestBody `json:"body,omitempty"`
+	Body      client.FilesCreateJSONRequestBody `json:"body"`
 }
 
 func registerFilesCreate(s *server.MCPServer) {

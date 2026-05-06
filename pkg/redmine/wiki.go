@@ -124,7 +124,7 @@ type WikiUpdatePatchRequest struct {
 	ProjectId string                                `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Id        string                                `json:"id" jsonschema:"description=The title of the wiki."`
 	Params    *client.WikiUpdatePatchParams         `json:"params,omitempty"`
-	Body      client.WikiUpdatePatchJSONRequestBody `json:"body,omitempty"`
+	Body      client.WikiUpdatePatchJSONRequestBody `json:"body"`
 }
 
 func registerWikiUpdatePatch(s *server.MCPServer) {
