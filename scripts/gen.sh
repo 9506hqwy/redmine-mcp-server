@@ -68,6 +68,7 @@ EOF
 function write-request-struct(){
     local OP_PATH="$1"
     local PATH_INFO="$2"
+    local REQ_BODY="${3:-}"
 
     TOOL_NAME=$(toolname "${PATH_INFO}")
     API_NAME=$(capitalize "${TOOL_NAME}")
@@ -110,11 +111,18 @@ function write-request-struct(){
 
     PATH_STMT_STR="$(IFS=$'\n'; echo "${PATH_STMT[*]}")"
 
+    # body
+    BODY_SMTM_STR=""
+    if [[ -n "${REQ_BODY}" && "${REQ_BODY}" != 'null' ]]; then
+        BODY_SMTM_STR="Body client.${API_NAME}JSONRequestBody \`json:\"body,omitempty\"\`"
+    fi
+
     FILE_PATH=$(filename "$(yq -r '.tags[0]' <<<"${PATH_INFO}")")
     cat >> "${FILE_PATH}" <<EOF
 type ${API_NAME}Request struct {
     ${PATH_STMT_STR}
     Params *client.${API_NAME}Params \`json:"params,omitempty"\`
+    ${BODY_SMTM_STR}
 }
 EOF
 
@@ -164,6 +172,7 @@ EOF
 function write-handler-func() {
     local OP_PATH="$1"
     local PATH_INFO="$2"
+    local REQ_BODY="${3:-}"
 
     TOOL_NAME=$(toolname "${PATH_INFO}")
     API_NAME=$(capitalize "${TOOL_NAME}")
@@ -194,6 +203,11 @@ function write-handler-func() {
         PATH_ARG_STR=", ${PATH_ARG_STR}"
     fi
 
+    BODY_ARG_STR=""
+    if [[ -n "${REQ_BODY}" && "${REQ_BODY}" != 'null' ]]; then
+        BODY_ARG_STR=", req.Body"
+    fi
+
     FILE_PATH=$(filename "$(yq -r '.tags[0]' <<<"${PATH_INFO}")")
     cat >> "${FILE_PATH}" <<EOF
 
@@ -203,7 +217,7 @@ func ${API_NAME,}Handler(ctx context.Context, request mcp.CallToolRequest, req $
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	return toResult(c.${API_NAME}(ctx ${PATH_ARG_STR}, req.Params, authorizationHeader))
+	return toResult(c.${API_NAME}(ctx ${PATH_ARG_STR}, req.Params ${BODY_ARG_STR}, authorizationHeader))
 }
 EOF
 }
@@ -232,19 +246,21 @@ do
     fi
 
     OP_POST=$(yq '.value.post | . style="flow"' <<<"${PATH_INFO}")
+    TOOL_NAME=$(toolname "${OP_POST}")
     OP_REQ_BODY=$(yq '.value.post.requestBody' <<<"${PATH_INFO}")
-    if [[ "$OP_POST" != 'null' && "$OP_REQ_BODY" == 'null' ]]; then
-        write-request-struct "${OP_PATH}" "${OP_POST}"
+    if [[ "$OP_POST" != 'null' && ${TOOL_NAME} != "attachments_upload" ]]; then
+        write-request-struct "${OP_PATH}" "${OP_POST}" "${OP_REQ_BODY}"
         write-register-func "${OP_POST}" "${PATH_PARAMS}"
-        write-handler-func "${OP_PATH}" "${OP_POST}"
+        write-handler-func "${OP_PATH}" "${OP_POST}" "${OP_REQ_BODY}"
     fi
 
     OP_PATCH=$(yq '.value.patch | . style="flow"' <<<"${PATH_INFO}")
+    TOOL_NAME=$(toolname "${OP_PATCH}")
     OP_REQ_BODY=$(yq '.value.patch.requestBody' <<<"${PATH_INFO}")
-    if [[ "$OP_PATCH" != 'null' && "$OP_REQ_BODY" == 'null' ]]; then
-        write-request-struct "${OP_PATH}" "${OP_PATCH}"
+    if [[ "$OP_PATCH" != 'null' && ${TOOL_NAME} != "attachments_upload" ]]; then
+        write-request-struct "${OP_PATH}" "${OP_PATCH}" "${OP_REQ_BODY}"
         write-register-func "${OP_PATCH}" "${PATH_PARAMS}"
-        write-handler-func "${OP_PATH}" "${OP_PATCH}"
+        write-handler-func "${OP_PATH}" "${OP_PATCH}" "${OP_REQ_BODY}"
     fi
 
     OP_GET=$(yq '.value.get | . style="flow"' <<<"${PATH_INFO}")
@@ -288,12 +304,13 @@ do
     fi
 
     OP_POST=$(yq '.value.post | . style="flow"' <<<"${PATH_INFO}")
-    OP_REQ_BODY=$(yq '.value.post.requestBody' <<<"${PATH_INFO}")
-    if [[ "$OP_POST" != 'null' && "$OP_REQ_BODY" == 'null' ]]; then
+    if [[ "$OP_POST" != 'null' ]]; then
         TOOL_NAME=$(toolname "${OP_POST}")
         API_NAME=$(capitalize "${TOOL_NAME}")
 
-        if [[ ${#TOOL_NAME} -gt 46 ]]; then
+        if [[ ${TOOL_NAME} == "attachments_upload" ]]; then
+            echo "//if !readonly { register${API_NAME}(s) }" >> "${TOOLS_PATH}"
+        elif [[ ${#TOOL_NAME} -gt 46 ]]; then
             echo "//if !readonly { register${API_NAME}(s) }" >> "${TOOLS_PATH}"
         else
             echo "if !readonly { register${API_NAME}(s) }" >> "${TOOLS_PATH}"
@@ -301,12 +318,13 @@ do
     fi
 
     OP_PATCH=$(yq '.value.patch | . style="flow"' <<<"${PATH_INFO}")
-    OP_REQ_BODY=$(yq '.value.patch.requestBody' <<<"${PATH_INFO}")
-    if [[ "$OP_PATCH" != 'null' && "$OP_REQ_BODY" == 'null' ]]; then
+    if [[ "$OP_PATCH" != 'null' ]]; then
         TOOL_NAME=$(toolname "${OP_PATCH}")
         API_NAME=$(capitalize "${TOOL_NAME}")
 
-        if [[ ${#TOOL_NAME} -gt 46 ]]; then
+        if [[ ${TOOL_NAME} == "attachments_upload" ]]; then
+            echo "//if !readonly { register${API_NAME}(s) }" >> "${TOOLS_PATH}"
+        elif [[ ${#TOOL_NAME} -gt 46 ]]; then
             echo "//if !readonly { register${API_NAME}(s) }" >> "${TOOLS_PATH}"
         else
             echo "if !readonly { register${API_NAME}(s) }" >> "${TOOLS_PATH}"

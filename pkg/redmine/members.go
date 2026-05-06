@@ -47,6 +47,43 @@ func membersDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req
 	return toResult(c.MembersDestroy(ctx, req.Id, req.Params, authorizationHeader))
 }
 
+type MembersUpdatePatchRequest struct {
+	Id     int                                      `json:"id" jsonschema:"description=The ID of the membership."`
+	Params *client.MembersUpdatePatchParams         `json:"params,omitempty"`
+	Body   client.MembersUpdatePatchJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerMembersUpdatePatch(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&MembersUpdatePatchRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("members_update_patch",
+		mcp.WithDescription("Updates the membership with the specified ID."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(membersUpdatePatchHandler))
+}
+
+func membersUpdatePatchHandler(ctx context.Context, request mcp.CallToolRequest, req MembersUpdatePatchRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.MembersUpdatePatch(ctx, req.Id, req.Params, req.Body, authorizationHeader))
+}
+
 type MembersShowRequest struct {
 	Id     int                       `json:"id" jsonschema:"description=The ID of the membership."`
 	Params *client.MembersShowParams `json:"params,omitempty"`
@@ -81,6 +118,43 @@ func membersShowHandler(ctx context.Context, request mcp.CallToolRequest, req Me
 	}
 
 	return toResult(c.MembersShow(ctx, req.Id, req.Params, authorizationHeader))
+}
+
+type MembersCreateRequest struct {
+	ProjectId string                              `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Params    *client.MembersCreateParams         `json:"params,omitempty"`
+	Body      client.MembersCreateJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerMembersCreate(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&MembersCreateRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("members_create",
+		mcp.WithDescription("Adds a new member to the project."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(membersCreateHandler))
+}
+
+func membersCreateHandler(ctx context.Context, request mcp.CallToolRequest, req MembersCreateRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.MembersCreate(ctx, req.ProjectId, req.Params, req.Body, authorizationHeader))
 }
 
 type MembersIndexRequest struct {

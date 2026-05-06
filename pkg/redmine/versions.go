@@ -11,6 +11,43 @@ import (
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
+type VersionsCreateRequest struct {
+	ProjectId string                               `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Params    *client.VersionsCreateParams         `json:"params,omitempty"`
+	Body      client.VersionsCreateJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerVersionsCreate(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&VersionsCreateRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("versions_create",
+		mcp.WithDescription("Creates a new version for the project with the specified ID or identifier (:project_id)."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(versionsCreateHandler))
+}
+
+func versionsCreateHandler(ctx context.Context, request mcp.CallToolRequest, req VersionsCreateRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.VersionsCreate(ctx, req.ProjectId, req.Params, req.Body, authorizationHeader))
+}
+
 type VersionsIndexRequest struct {
 	ProjectId string                      `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Params    *client.VersionsIndexParams `json:"params,omitempty"`
@@ -117,6 +154,43 @@ func versionsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, re
 	}
 
 	return toResult(c.VersionsDestroy(ctx, req.Id, req.Params, authorizationHeader))
+}
+
+type VersionsUpdatePatchRequest struct {
+	Id     int                                       `json:"id" jsonschema:"description=The ID of the version."`
+	Params *client.VersionsUpdatePatchParams         `json:"params,omitempty"`
+	Body   client.VersionsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerVersionsUpdatePatch(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&VersionsUpdatePatchRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("versions_update_patch",
+		mcp.WithDescription("Updates the version with the specified ID."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(versionsUpdatePatchHandler))
+}
+
+func versionsUpdatePatchHandler(ctx context.Context, request mcp.CallToolRequest, req VersionsUpdatePatchRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.VersionsUpdatePatch(ctx, req.Id, req.Params, req.Body, authorizationHeader))
 }
 
 type VersionsShowRequest struct {

@@ -156,6 +156,43 @@ func attachmentsDestroyHandler(ctx context.Context, request mcp.CallToolRequest,
 	return toResult(c.AttachmentsDestroy(ctx, req.Id, req.Params, authorizationHeader))
 }
 
+type AttachmentsUpdatePatchRequest struct {
+	Id     int                                          `json:"id" jsonschema:"description=The ID of the attachment."`
+	Params *client.AttachmentsUpdatePatchParams         `json:"params,omitempty"`
+	Body   client.AttachmentsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerAttachmentsUpdatePatch(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&AttachmentsUpdatePatchRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("attachments_update_patch",
+		mcp.WithDescription("Updates the attachment with the specified ID."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(attachmentsUpdatePatchHandler))
+}
+
+func attachmentsUpdatePatchHandler(ctx context.Context, request mcp.CallToolRequest, req AttachmentsUpdatePatchRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.AttachmentsUpdatePatch(ctx, req.Id, req.Params, req.Body, authorizationHeader))
+}
+
 type AttachmentsShowRequest struct {
 	Id     int                           `json:"id" jsonschema:"description=The ID of the attachment."`
 	Params *client.AttachmentsShowParams `json:"params,omitempty"`

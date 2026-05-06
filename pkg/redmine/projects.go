@@ -46,6 +46,42 @@ func projectsIndexCsvHandler(ctx context.Context, request mcp.CallToolRequest, r
 	return toResult(c.ProjectsIndexCsv(ctx, req.Params, authorizationHeader))
 }
 
+type ProjectsCreateRequest struct {
+	Params *client.ProjectsCreateParams         `json:"params,omitempty"`
+	Body   client.ProjectsCreateJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerProjectsCreate(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&ProjectsCreateRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("projects_create",
+		mcp.WithDescription("Creates a new project."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(projectsCreateHandler))
+}
+
+func projectsCreateHandler(ctx context.Context, request mcp.CallToolRequest, req ProjectsCreateRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.ProjectsCreate(ctx, req.Params, req.Body, authorizationHeader))
+}
+
 type ProjectsIndexRequest struct {
 	Params *client.ProjectsIndexParams `json:"params,omitempty"`
 }
@@ -115,6 +151,43 @@ func projectsDestroyHandler(ctx context.Context, request mcp.CallToolRequest, re
 	}
 
 	return toResult(c.ProjectsDestroy(ctx, req.Id, req.Params, authorizationHeader))
+}
+
+type ProjectsUpdatePatchRequest struct {
+	Id     string                                    `json:"id" jsonschema:"description=The ID or identifier of the project."`
+	Params *client.ProjectsUpdatePatchParams         `json:"params,omitempty"`
+	Body   client.ProjectsUpdatePatchJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerProjectsUpdatePatch(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&ProjectsUpdatePatchRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("projects_update_patch",
+		mcp.WithDescription("Updates the project with the specified ID or identifier."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(projectsUpdatePatchHandler))
+}
+
+func projectsUpdatePatchHandler(ctx context.Context, request mcp.CallToolRequest, req ProjectsUpdatePatchRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.ProjectsUpdatePatch(ctx, req.Id, req.Params, req.Body, authorizationHeader))
 }
 
 type ProjectsShowRequest struct {

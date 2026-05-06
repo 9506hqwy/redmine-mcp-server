@@ -120,6 +120,44 @@ func wikiDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req Wi
 	return toResult(c.WikiDestroy(ctx, req.ProjectId, req.Id, req.Params, authorizationHeader))
 }
 
+type WikiUpdatePatchRequest struct {
+	ProjectId string                                `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Id        string                                `json:"id" jsonschema:"description=The title of the wiki."`
+	Params    *client.WikiUpdatePatchParams         `json:"params,omitempty"`
+	Body      client.WikiUpdatePatchJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerWikiUpdatePatch(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&WikiUpdatePatchRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("wiki_update_patch",
+		mcp.WithDescription("Creates or updates a wiki page with the specified ID."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(wikiUpdatePatchHandler))
+}
+
+func wikiUpdatePatchHandler(ctx context.Context, request mcp.CallToolRequest, req WikiUpdatePatchRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.WikiUpdatePatch(ctx, req.ProjectId, req.Id, req.Params, req.Body, authorizationHeader))
+}
+
 type WikiShowRequest struct {
 	ProjectId string                 `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
 	Id        string                 `json:"id" jsonschema:"description=The title of the wiki."`

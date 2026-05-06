@@ -46,6 +46,42 @@ func issuesIndexCsvHandler(ctx context.Context, request mcp.CallToolRequest, req
 	return toResult(c.IssuesIndexCsv(ctx, req.Params, authorizationHeader))
 }
 
+type IssuesCreateRequest struct {
+	Params *client.IssuesCreateParams         `json:"params,omitempty"`
+	Body   client.IssuesCreateJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerIssuesCreate(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&IssuesCreateRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("issues_create",
+		mcp.WithDescription("Creates a new issue."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(issuesCreateHandler))
+}
+
+func issuesCreateHandler(ctx context.Context, request mcp.CallToolRequest, req IssuesCreateRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.IssuesCreate(ctx, req.Params, req.Body, authorizationHeader))
+}
+
 type IssuesIndexRequest struct {
 	Params *client.IssuesIndexParams `json:"params,omitempty"`
 }
@@ -150,6 +186,43 @@ func issuesDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req 
 	}
 
 	return toResult(c.IssuesDestroy(ctx, req.Id, req.Params, authorizationHeader))
+}
+
+type IssuesUpdatePatchRequest struct {
+	Id     int                                     `json:"id" jsonschema:"description=The ID of the issue."`
+	Params *client.IssuesUpdatePatchParams         `json:"params,omitempty"`
+	Body   client.IssuesUpdatePatchJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerIssuesUpdatePatch(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&IssuesUpdatePatchRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("issues_update_patch",
+		mcp.WithDescription("Updates the issue with the specified ID."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(issuesUpdatePatchHandler))
+}
+
+func issuesUpdatePatchHandler(ctx context.Context, request mcp.CallToolRequest, req IssuesUpdatePatchRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.IssuesUpdatePatch(ctx, req.Id, req.Params, req.Body, authorizationHeader))
 }
 
 type IssuesShowRequest struct {
@@ -258,6 +331,43 @@ func issuesIndexProjectCsvHandler(ctx context.Context, request mcp.CallToolReque
 	}
 
 	return toResult(c.IssuesIndexProjectCsv(ctx, req.ProjectId, req.Params, authorizationHeader))
+}
+
+type IssuesCreateProjectRequest struct {
+	ProjectId string                                    `json:"project_id" jsonschema:"description=The ID or identifier of the project."`
+	Params    *client.IssuesCreateProjectParams         `json:"params,omitempty"`
+	Body      client.IssuesCreateProjectJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerIssuesCreateProject(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&IssuesCreateProjectRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("issues_create_project",
+		mcp.WithDescription("Creates a new issue."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(issuesCreateProjectHandler))
+}
+
+func issuesCreateProjectHandler(ctx context.Context, request mcp.CallToolRequest, req IssuesCreateProjectRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.IssuesCreateProject(ctx, req.ProjectId, req.Params, req.Body, authorizationHeader))
 }
 
 type IssuesIndexProjectRequest struct {

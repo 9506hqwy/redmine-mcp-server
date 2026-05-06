@@ -11,6 +11,43 @@ import (
 	client "github.com/9506hqwy/redmine-client-go/pkg/redmine"
 )
 
+type TimelogCreateIssueRequest struct {
+	IssueId int                                      `json:"issue_id" jsonschema:"description=The ID of the issue."`
+	Params  *client.TimelogCreateIssueParams         `json:"params,omitempty"`
+	Body    client.TimelogCreateIssueJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerTimelogCreateIssue(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&TimelogCreateIssueRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("timelog_create_issue",
+		mcp.WithDescription("Creates a new time entry for the specified issue."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(timelogCreateIssueHandler))
+}
+
+func timelogCreateIssueHandler(ctx context.Context, request mcp.CallToolRequest, req TimelogCreateIssueRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.TimelogCreateIssue(ctx, req.IssueId, req.Params, req.Body, authorizationHeader))
+}
+
 type TimelogIndexProjectCsvRequest struct {
 	ProjectId string                               `json:"project_id" jsonschema:"description=The ID or identifer of the project."`
 	Params    *client.TimelogIndexProjectCsvParams `json:"params,omitempty"`
@@ -45,6 +82,43 @@ func timelogIndexProjectCsvHandler(ctx context.Context, request mcp.CallToolRequ
 	}
 
 	return toResult(c.TimelogIndexProjectCsv(ctx, req.ProjectId, req.Params, authorizationHeader))
+}
+
+type TimelogCreateProjectRequest struct {
+	ProjectId string                                     `json:"project_id" jsonschema:"description=The ID or identifer of the project."`
+	Params    *client.TimelogCreateProjectParams         `json:"params,omitempty"`
+	Body      client.TimelogCreateProjectJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerTimelogCreateProject(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&TimelogCreateProjectRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("timelog_create_project",
+		mcp.WithDescription("Creates a new time entry."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(timelogCreateProjectHandler))
+}
+
+func timelogCreateProjectHandler(ctx context.Context, request mcp.CallToolRequest, req TimelogCreateProjectRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.TimelogCreateProject(ctx, req.ProjectId, req.Params, req.Body, authorizationHeader))
 }
 
 type TimelogIndexProjectRequest struct {
@@ -118,6 +192,42 @@ func timelogIndexCsvHandler(ctx context.Context, request mcp.CallToolRequest, re
 	return toResult(c.TimelogIndexCsv(ctx, req.Params, authorizationHeader))
 }
 
+type TimelogCreateRequest struct {
+	Params *client.TimelogCreateParams         `json:"params,omitempty"`
+	Body   client.TimelogCreateJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerTimelogCreate(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&TimelogCreateRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("timelog_create",
+		mcp.WithDescription("Creates a new time entry."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(timelogCreateHandler))
+}
+
+func timelogCreateHandler(ctx context.Context, request mcp.CallToolRequest, req TimelogCreateRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.TimelogCreate(ctx, req.Params, req.Body, authorizationHeader))
+}
+
 type TimelogIndexRequest struct {
 	Params *client.TimelogIndexParams `json:"params,omitempty"`
 }
@@ -187,6 +297,43 @@ func timelogDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req
 	}
 
 	return toResult(c.TimelogDestroy(ctx, req.Id, req.Params, authorizationHeader))
+}
+
+type TimelogUpdatePatchRequest struct {
+	Id     int                                      `json:"id" jsonschema:"description=The ID of the time entry."`
+	Params *client.TimelogUpdatePatchParams         `json:"params,omitempty"`
+	Body   client.TimelogUpdatePatchJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerTimelogUpdatePatch(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&TimelogUpdatePatchRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("timelog_update_patch",
+		mcp.WithDescription("Updates the time entry with the specified ID."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(timelogUpdatePatchHandler))
+}
+
+func timelogUpdatePatchHandler(ctx context.Context, request mcp.CallToolRequest, req TimelogUpdatePatchRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.TimelogUpdatePatch(ctx, req.Id, req.Params, req.Body, authorizationHeader))
 }
 
 type TimelogShowRequest struct {

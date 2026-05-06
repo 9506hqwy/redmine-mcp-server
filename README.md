@@ -98,58 +98,83 @@ Add `redmine-mcp-server` binary to `PATH` environment variable and configure VS 
 | attachments_thumbnail                  | Download the thumbnail of the attachment with the specified ID.                                                                                                              |
 | attachments_thumbnail_size             | Downloads the attachment thumbnail with the specified ID.                                                                                                                    |
 | attachments_destroy                    | Deletes the attachment with the specified ID.                                                                                                                                |
+| attachments_update_patch               | Updates the attachment with the specified ID.                                                                                                                                |
 | attachments_show                       | Returns the attachment with the specified ID.                                                                                                                                |
 | attachments_download_all               | Downloads the attachment with the specified ID.                                                                                                                              |
 | custom_fields_index                    | Returns all custom field definitions.                                                                                                                                        |
 | enumerations_index_document_category   | Returns a list of document categories.                                                                                                                                       |
 | enumerations_index_issue_priority      | Returns a list of issue priorities.                                                                                                                                          |
 | enumerations_index_time_entry_activity | Returns a list of time entry activities.                                                                                                                                     |
+| groups_create                          | Creates a new group.                                                                                                                                                         |
 | groups_index                           | Returns a list of all groups.                                                                                                                                                |
 | groups_destroy                         | Deletes the group with the specified ID.                                                                                                                                     |
+| groups_update_patch                    | Updates the group with the specified ID.                                                                                                                                     |
 | groups_show                            | Returns the group with the specified ID.                                                                                                                                     |
+| groups_add_users                       | Adds an existing user to a group.                                                                                                                                            |
 | groups_remove_user                     | Removes a user from a group.                                                                                                                                                 |
 | issues_index_csv                       | Returns a paginated list of issues. By default, it returns open issues only.                                                                                                 |
+| issues_create                          | Creates a new issue.                                                                                                                                                         |
 | issues_index                           | Returns a paginated list of issues. By default, it returns open issues only.                                                                                                 |
 | issues_index_pdf                       | Returns a paginated list of issues. By default, it returns open issues only.                                                                                                 |
 | gantts_show_pdf                        | Download the Gantt chart.                                                                                                                                                    |
 | gantts_show_png                        | Download the Gantt chart.                                                                                                                                                    |
 | issues_destroy                         | Deletes the issue with the specified ID.                                                                                                                                     |
+| issues_update_patch                    | Updates the issue with the specified ID.                                                                                                                                     |
 | issues_show                            | Returns the issue with the specified ID.                                                                                                                                     |
 | issues_show_pdf                        | Returns the issue with the specified ID.                                                                                                                                     |
+| issue_relations_create                 | Creates a relation for the specified issue ID.                                                                                                                               |
 | issue_relations_index                  | Returns the relations for the specified issue ID.                                                                                                                            |
+| timelog_create_issue                   | Creates a new time entry for the specified issue.                                                                                                                            |
+| watchers_create_issue                  | Creates a new watcher for the specified issue.                                                                                                                               |
 | watchers_destroy_issue                 | Deletes the watcher with the specified ID from the issue.                                                                                                                    |
 | issue_categories_destroy               | Deletes the issue category with the specified ID.                                                                                                                            |
+| issue_categories_update_patch          | Updates the issue category with the specified ID.                                                                                                                            |
 | issue_categories_show                  | Returns the issue category with the specified ID.                                                                                                                            |
 | issue_statuses_index                   | Returns a list of all issue statuses.                                                                                                                                        |
+| journals_update_patch                  | Update the journal with the specified ID.                                                                                                                                    |
 | members_destroy                        | Deletes the membership with the specified ID.                                                                                                                                |
+| members_update_patch                   | Updates the membership with the specified ID.                                                                                                                                |
 | members_show                           | Returns the membership with the specified ID.                                                                                                                                |
 | my_account                             | Returns the current user's account information.                                                                                                                              |
+| news_create                            | Creates a new news item.                                                                                                                                                     |
 | news_index                             | Returns all news items across all projects with pagination.                                                                                                                  |
 | news_destroy                           | Deletes the news with the specified ID.                                                                                                                                      |
+| news_update_patch                      | Updates the news with the specified ID.                                                                                                                                      |
 | news_show                              | Returns the news item with the specified ID.                                                                                                                                 |
 | projects_index_csv                     | Returns all projects (including all public projects and private projects to which the user has access).                                                                      |
+| projects_create                        | Creates a new project.                                                                                                                                                       |
 | projects_index                         | Returns all projects (including all public projects and private projects to which the user has access).                                                                      |
 | projects_destroy                       | Deletes the project with the specified ID or identifier.                                                                                                                     |
+| projects_update_patch                  | Updates the project with the specified ID or identifier.                                                                                                                     |
 | projects_show                          | Returns the project with the specified ID or identifier.                                                                                                                     |
 | projects_archive_post                  | Archives the project with the specified ID or identifier.                                                                                                                    |
+| files_create                           | Creates a new file.                                                                                                                                                          |
 | files_index                            | Returns a list of all files.                                                                                                                                                 |
 | projects_unarchive_post                | Unarchives the project with the specified ID or identifier.                                                                                                                  |
 | issues_index_project_csv               | Returns a paginated list of issues. By default, it returns open issues only.                                                                                                 |
+| issues_create_project                  | Creates a new issue.                                                                                                                                                         |
 | issues_index_project                   | Returns a paginated list of issues. By default, it returns open issues only.                                                                                                 |
 | issues_index_project_pdf               | Returns a paginated list of issues. By default, it returns open issues only.                                                                                                 |
+| issue_categories_create                | Creates an issue category with specified the project ID or identifier.                                                                                                       |
 | issue_categories_index                 | Returns the issue categories available for the specified project by ID or identifier.                                                                                        |
 | gantts_show_project_pdf                | Download the Gantt chart for the specified project.                                                                                                                          |
 | gantts_show_project_png                | Download the Gantt chart for the specified project.                                                                                                                          |
+| members_create                         | Adds a new member to the project.                                                                                                                                            |
 | members_index                          | Returns a paginated list of project memberships.                                                                                                                             |
+| news_create_project                    | Creates a new news item.                                                                                                                                                     |
 | news_index_project                     | Returns all news items across all projects with pagination.                                                                                                                  |
+| repositories_add_related_issue         | Add a related issue to the specified revision.                                                                                                                               |
 | repositories_remove_related_issue      | Remove a related issue from the specified revision.                                                                                                                          |
 | search_index_project                   | Returns search results based on the specified query parameters.                                                                                                              |
 | timelog_index_project_csv              | Returns a list of time entries for the specified project in CSV format.                                                                                                      |
+| timelog_create_project                 | Creates a new time entry.                                                                                                                                                    |
 | timelog_index_project                  | Returns a list of time entries for the specified project.                                                                                                                    |
+| versions_create                        | Creates a new version for the project with the specified ID or identifier (:project_id).                                                                                     |
 | versions_index                         | Returns the versions available for the project with the specified ID or identifier (:project_id). The response may include shared versions from other projects.              |
 | wiki_show_root                         | Returns the details of the root wiki page.                                                                                                                                   |
 | wiki_index                             | Returns a list of all pages in the project wiki.                                                                                                                             |
 | wiki_destroy                           | Deletes a wiki page, its attachments and its history with the specified ID. If the deleted page is a parent page, its child pages are not deleted but changed as root pages. |
+| wiki_update_patch                      | Creates or updates a wiki page with the specified ID.                                                                                                                        |
 | wiki_show                              | Returns the details of a wiki page with the specified ID.                                                                                                                    |
 | wiki_show_pdf                          | Returns the details of a wiki page with the specified ID.                                                                                                                    |
 | wiki_show_txt                          | Returns the details of a wiki page with the specified ID.                                                                                                                    |
@@ -163,17 +188,23 @@ Add `redmine-mcp-server` binary to `PATH` environment variable and configure VS 
 | roles_show                             | Returns the role with the specified ID.                                                                                                                                      |
 | search_index                           | Returns search results based on the specified query parameters.                                                                                                              |
 | timelog_index_csv                      | Returns a list of time entries.                                                                                                                                              |
+| timelog_create                         | Creates a new time entry.                                                                                                                                                    |
 | timelog_index                          | Returns a list of time entries.                                                                                                                                              |
 | timelog_destroy                        | Deletes the time entry with the specified ID.                                                                                                                                |
+| timelog_update_patch                   | Updates the time entry with the specified ID.                                                                                                                                |
 | timelog_show                           | Returns the time entry with the specified ID.                                                                                                                                |
 | trackers_index                         | Returns a list of all trackers.                                                                                                                                              |
 | users_index_csv                        | Returns a list of all users in CSV format.                                                                                                                                   |
+| users_create                           | Creates a new user.                                                                                                                                                          |
 | users_index                            | Returns a list of all users.                                                                                                                                                 |
 | users_destroy                          | Deletes the user with the specified ID.                                                                                                                                      |
+| users_update_patch                     | Updates the user with the specified ID. Use /users/current.json to update the user whose credentials is used to access the API.                                              |
 | users_show                             | Returns the user with the specified ID. Use /users/current.json to retrieve the user whose credentials is used to access the API.                                            |
 | watchers_destroy                       | Deletes the watcher with the specified ID.                                                                                                                                   |
+| watchers_create                        | Creates a new watcher.                                                                                                                                                       |
 | versions_show_txt                      | Returns the version with the specified ID.                                                                                                                                   |
 | versions_destroy                       | Deletes the version with the specified ID.                                                                                                                                   |
+| versions_update_patch                  | Updates the version with the specified ID.                                                                                                                                   |
 | versions_show                          | Returns the version with the specified ID.                                                                                                                                   |
 
 ## Testing
@@ -222,6 +253,18 @@ Check that this MCP server does correctly using [@modelcontextprotocol/inspector
 npx @modelcontextprotocol/inspector ./bin/redmine-mcp-server --url=<URL> --apikey=<TOKEN>
 ```
 
+## TODO
+
+- Add binary operation support.
+  - attachments#download_all
+  - attachments#upload
+  - gantts#show-project-pdf
+  - issues#index-pdf
+  - issues#show-pdf
+  - issues#index-project-pdf
+  - wiki#show-pdf
+  - wiki#show-version-pdf
+
 ## Notes
 
-* Check off unused tools at [tool icon] in GitHub Copilot Chat panel bacause vscode limits max 128 tools.
+- Check off unused tools at [tool icon] in GitHub Copilot Chat panel bacause vscode limits max 128 tools.

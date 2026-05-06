@@ -46,6 +46,42 @@ func usersIndexCsvHandler(ctx context.Context, request mcp.CallToolRequest, req 
 	return toResult(c.UsersIndexCsv(ctx, req.Params, authorizationHeader))
 }
 
+type UsersCreateRequest struct {
+	Params *client.UsersCreateParams         `json:"params,omitempty"`
+	Body   client.UsersCreateJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerUsersCreate(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&UsersCreateRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("users_create",
+		mcp.WithDescription("Creates a new user."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(usersCreateHandler))
+}
+
+func usersCreateHandler(ctx context.Context, request mcp.CallToolRequest, req UsersCreateRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.UsersCreate(ctx, req.Params, req.Body, authorizationHeader))
+}
+
 type UsersIndexRequest struct {
 	Params *client.UsersIndexParams `json:"params,omitempty"`
 }
@@ -115,6 +151,43 @@ func usersDestroyHandler(ctx context.Context, request mcp.CallToolRequest, req U
 	}
 
 	return toResult(c.UsersDestroy(ctx, req.Id, req.Params, authorizationHeader))
+}
+
+type UsersUpdatePatchRequest struct {
+	Id     string                                 `json:"id" jsonschema:"description=The ID or 'current' of the user."`
+	Params *client.UsersUpdatePatchParams         `json:"params,omitempty"`
+	Body   client.UsersUpdatePatchJSONRequestBody `json:"body,omitempty"`
+}
+
+func registerUsersUpdatePatch(s *server.MCPServer) {
+	r := &jsonschema.Reflector{}
+	r.DoNotReference = true
+	schemaObj := r.Reflect(&UsersUpdatePatchRequest{})
+	mcpSchema, err := json.Marshal(schemaObj)
+	if err != nil {
+		return
+	}
+
+	rawSchema := json.RawMessage(mcpSchema)
+
+	tool := mcp.NewTool("users_update_patch",
+		mcp.WithDescription("Updates the user with the specified ID. Use /users/current.json to update the user whose credentials is used to access the API."),
+		mcp.WithRawInputSchema(rawSchema),
+		func(tool *mcp.Tool) {
+			tool.InputSchema.Type = ""
+		},
+	)
+
+	s.AddTool(tool, mcp.NewTypedToolHandler(usersUpdatePatchHandler))
+}
+
+func usersUpdatePatchHandler(ctx context.Context, request mcp.CallToolRequest, req UsersUpdatePatchRequest) (*mcp.CallToolResult, error) {
+	c, err := newClient(ctx)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	return toResult(c.UsersUpdatePatch(ctx, req.Id, req.Params, req.Body, authorizationHeader))
 }
 
 type UsersShowRequest struct {
