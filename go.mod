@@ -11,7 +11,7 @@ tool (
 require (
 	github.com/9506hqwy/redmine-client-go v0.0.0-20251113105816-b84adc98d5b7
 	github.com/invopop/jsonschema v0.14.0
-	github.com/mark3labs/mcp-go v0.54.0
+	github.com/mark3labs/mcp-go v0.54.1
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 )
