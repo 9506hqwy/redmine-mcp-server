@@ -2,6 +2,7 @@ package redmine
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,8 +11,8 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
-type ApiKeyKey struct{}
-type UrlKey struct{}
+type APIKeyKey struct{}
+type URKKey struct{}
 type UserKey struct{}
 type PasswordKey struct{}
 
@@ -26,12 +27,12 @@ func authorizationHeader(ctx context.Context, req *http.Request) error {
 func basicAuth(ctx context.Context, req *http.Request) error {
 	user, ok := ctx.Value(UserKey{}).(string)
 	if !ok || user == "" {
-		return fmt.Errorf("missing user")
+		return errors.New("missing user")
 	}
 
 	password, ok := ctx.Value(PasswordKey{}).(string)
 	if !ok {
-		return fmt.Errorf("missing password")
+		return errors.New("missing password")
 	}
 
 	req.SetBasicAuth(user, password)
@@ -39,9 +40,9 @@ func basicAuth(ctx context.Context, req *http.Request) error {
 }
 
 func apiKeyAuth(ctx context.Context, req *http.Request) error {
-	apiKey, ok := ctx.Value(ApiKeyKey{}).(string)
+	apiKey, ok := ctx.Value(APIKeyKey{}).(string)
 	if !ok || apiKey == "" {
-		return fmt.Errorf("missing API key")
+		return errors.New("missing API key")
 	}
 
 	req.Header.Set("X-Redmine-API-Key", apiKey)
@@ -51,9 +52,9 @@ func apiKeyAuth(ctx context.Context, req *http.Request) error {
 func newClient(ctx context.Context) (*client.ClientWithResponses, error) {
 	hc := http.Client{}
 
-	url, ok := ctx.Value(UrlKey{}).(string)
+	url, ok := ctx.Value(URKKey{}).(string)
 	if !ok || url == "" {
-		return nil, fmt.Errorf("missing url")
+		return nil, errors.New("missing url")
 	}
 
 	return client.NewClientWithResponses(url, client.WithHTTPClient(&hc))

@@ -17,12 +17,14 @@ var version = "<version>"
 var commit = "<commit>"
 
 func fromArgument(ctx context.Context) context.Context {
-	ctx = context.WithValue(ctx, redmine.UrlKey{}, viper.GetString("url"))
+	ctx = context.WithValue(ctx, redmine.URKKey{}, viper.GetString("url"))
 	ctx = context.WithValue(ctx, redmine.UserKey{}, viper.GetString("user"))
 	ctx = context.WithValue(ctx, redmine.PasswordKey{}, viper.GetString("password"))
-	ctx = context.WithValue(ctx, redmine.ApiKeyKey{}, viper.GetString("apikey"))
+	ctx = context.WithValue(ctx, redmine.APIKeyKey{}, viper.GetString("apikey"))
 	return ctx
 }
+
+//revive:disable:deep-exit
 
 var rootCmd = &cobra.Command{
 	Use:     "redmine-mcp-server",
@@ -45,6 +47,8 @@ var rootCmd = &cobra.Command{
 		}
 	},
 }
+
+//revive:enable:deep-exit
 
 func init() {
 	cobra.OnInitialize(initConfig)
